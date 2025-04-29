@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片压缩工具</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部区域 -->
+        <header class="header">
+            <h1>图片压缩工具</h1>
+            <p class="subtitle">简单、高效的图片压缩解决方案</p>
+            <div class="mode-switch">
+                <button id="singleModeBtn" class="mode-btn active">单张压缩</button>
+                <button id="batchModeBtn" class="mode-btn">批量压缩</button>
+            </div>
+        </header>
+
+        <!-- 主要内容区域 -->
+        <main class="main-content">
+            <!-- 单张压缩模式 -->
+            <div id="singleMode" class="compression-mode">
+                <!-- 上传区域 -->
+                <div class="upload-section">
+                    <div class="upload-box" id="uploadBox">
+                        <input type="file" id="fileInput" accept="image/jpeg,image/png" class="file-input">
+                        <div class="upload-placeholder">
+                            <img src="images/upload-icon.svg" alt="上传图标" class="upload-icon">
+                            <p>点击或拖拽图片到此处</p>
+                            <p class="upload-hint">支持 JPG、PNG 格式</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 压缩设置区域 -->
+                <div class="compression-settings">
+                    <div class="quality-control">
+                        <label for="quality">压缩质量：</label>
+                        <input type="range" id="quality" min="0" max="100" value="80">
+                        <span id="qualityValue">80%</span>
+                    </div>
+                    <div class="size-control">
+                        <label for="maxWidth">最大宽度：</label>
+                        <input type="number" id="maxWidth" value="1920" min="100" max="5000">
+                        <span>px</span>
+                    </div>
+                    <button id="compressBtn" class="compress-btn">开始压缩</button>
+                </div>
+
+                <!-- 预览区域 -->
+                <div class="preview-section">
+                    <div class="preview-container">
+                        <div class="preview-box">
+                            <h3>原始图片</h3>
+                            <div class="image-container">
+                                <img id="originalImage" alt="原始图片">
+                            </div>
+                            <div class="image-info">
+                                <p>文件大小：<span id="originalSize">-</span></p>
+                                <p>尺寸：<span id="originalDimensions">-</span></p>
+                            </div>
+                        </div>
+                        <div class="preview-box">
+                            <h3>压缩后</h3>
+                            <div class="image-container">
+                                <img id="compressedImage" alt="压缩后图片">
+                            </div>
+                            <div class="image-info">
+                                <p>文件大小：<span id="compressedSize">-</span></p>
+                                <p>尺寸：<span id="compressedDimensions">-</span></p>
+                                <p>压缩率：<span id="compressionRatio">-</span></p>
+                            </div>
+                            <button id="downloadBtn" class="download-btn" disabled>下载图片</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 批量压缩模式 -->
+            <div id="batchMode" class="compression-mode" style="display: none;">
+                <div class="usage-tip">
+                    <h3>使用说明：</h3>
+                    <ol>
+                        <li>点击上传区域或直接拖拽图片到上传区域（支持多选）</li>
+                        <li>设置压缩参数：质量和最大宽度</li>
+                        <li>点击"开始压缩"按钮</li>
+                        <li>压缩完成后可预览效果</li>
+                        <li>支持单个下载或打包下载所有压缩后的图片</li>
+                    </ol>
+                </div>
+                <div class="batch-container">
+                    <div class="batch-upload-section">
+                        <div class="upload-box" id="batchUploadBox">
+                            <input type="file" id="batchFileInput" multiple accept="image/jpeg,image/png" class="file-input">
+                            <div class="upload-placeholder">
+                                <img src="images/upload-icon.svg" alt="上传图标" class="upload-icon">
+                                <p>点击或拖拽图片到此处</p>
+                                <p class="upload-hint">支持 JPG、PNG 格式</p>
+                            </div>
+                        </div>
+                        <div class="file-list" id="fileList"></div>
+                    </div>
+                    <div class="batch-preview-section">
+                        <div class="compression-settings">
+                            <div class="quality-control">
+                                <label for="batchQuality">压缩质量：</label>
+                                <input type="range" id="batchQuality" min="0" max="100" value="80">
+                                <span id="batchQualityValue">80%</span>
+                            </div>
+                            <div class="size-control">
+                                <label for="batchMaxWidth">最大宽度：</label>
+                                <input type="number" id="batchMaxWidth" value="1920" min="100" max="5000">
+                                <span>px</span>
+                            </div>
+                            <button id="batchCompressBtn" class="compress-btn">开始压缩</button>
+                        </div>
+                        <div class="preview-section">
+                            <div class="preview-container">
+                                <div class="preview-box">
+                                    <h3>原始图片</h3>
+                                    <div class="image-container">
+                                        <img id="batchOriginalImage" alt="原始图片">
+                                    </div>
+                                    <div class="image-info">
+                                        <p>文件大小：<span id="batchOriginalSize">-</span></p>
+                                        <p>尺寸：<span id="batchOriginalDimensions">-</span></p>
+                                    </div>
+                                </div>
+                                <div class="preview-box">
+                                    <h3>压缩后</h3>
+                                    <div class="image-container">
+                                        <img id="batchCompressedImage" alt="压缩后图片">
+                                    </div>
+                                    <div class="image-info">
+                                        <p>文件大小：<span id="batchCompressedSize">-</span></p>
+                                        <p>尺寸：<span id="batchCompressedDimensions">-</span></p>
+                                        <p>压缩率：<span id="batchCompressionRatio">-</span></p>
+                                    </div>
+                                    <div class="preview-actions">
+                                        <button id="batchDownloadBtn" class="download-btn" disabled>下载当前图片</button>
+                                        <button id="batchDownloadAllBtn" class="download-btn" disabled>下载全部图片</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 页脚区域 -->
+        <footer class="footer">
+            <p>© 2024 图片压缩工具 | 简单、高效、专业</p>
+        </footer>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/batch-compress.js"></script>
+</body>
+</html>
